@@ -1,0 +1,37 @@
+<%!
+  from r2.lib.template_helpers import add_sr
+%>
+<%namespace file="utils.html" import="md, _md" />
+
+<%def name="beta_button()">
+  %if thing.require_gold:
+    <div class="gold-required">${_md('this beta is limited to [reddit gold](/gold/about) users.')}
+  </div>
+  %endif
+  %if not thing.enabled:
+    <button
+      class="beta-enable fancybutton ${'gold' if thing.require_gold else ''}"
+      data-beta-name="${thing.beta_name}"
+      ${'disabled' if thing.require_gold and not thing.has_gold else ''}
+    >${_('enable %s') % thing.beta_title}</button>
+  %else:
+    <button
+      class="beta-disable fancybutton"
+      data-beta-name="${thing.beta_name}"
+    >${_('disable %s') % thing.beta_title}</button>
+  %endif
+</%def>
+
+${md(thing.description_md)}
+
+<div class="beta-control">
+  ${beta_button()}
+  <div class="disable-info">${_('you can disable the beta at any time by clicking a "disable" button in the header or returning to this page.')}</div>
+</div>
+<div class="feedback">${md(
+  _("we'd love to hear your feedback on this beta at [%(feedback_title)s](%(feedback_url)s).")
+    % dict(
+      feedback_title=thing.feedback_sr,
+      feedback_url=add_sr(thing.feedback_sr)
+    )
+)}</div>
