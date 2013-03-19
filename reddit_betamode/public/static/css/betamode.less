@@ -1,0 +1,121 @@
+.beta-notice {
+    position: absolute;
+    top: 24px;
+    right: 0;
+    background: #ff7;
+    padding: 2px 5px;
+    font-size: x-small;
+    border-radius: 2px;
+    z-index: 100;
+    opacity: .8;
+
+    &:hover {
+        opacity: 1;
+    }
+
+    .beta-name {
+        margin-right: 6px;
+    }
+
+    a {
+        border-left: 1px solid gray;
+        margin-left: 6px;
+        padding-left: 6px;
+    }
+}
+
+#beta-settings, #beta-disable {
+    width: 35em;
+    font-size: large;
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    strong {
+        font-weight: bold;
+    }
+
+    p {
+        margin: 1em 0;
+    }
+}
+
+#beta-settings {
+    margin: 2em auto;
+    @padding-top: 130px;
+    @padding-right: 95px;
+    @padding-bottom: 80px;
+    @padding-left: 190px;
+    padding-top: @padding-top;
+    padding-right: @padding-right;
+    padding-bottom: @padding-bottom;
+    padding-left: @padding-left;
+    width: 795px - @padding-left - @padding-right;
+    height: 515px - @padding-top - @padding-bottom;
+    background: url(../reddit-beta-bg.png) no-repeat;
+
+    .fancybutton {
+        font-size: 1.15em;
+        margin: .5em 0;
+    }
+
+    .gold-required {
+        &, a {
+            color: #9a7d2e;
+        }
+
+        a {
+            font-weight: bold;
+        }
+
+        p {
+            margin: 0;
+        }
+    }
+
+    .disable-info {
+        font-size: .75em;
+        color: gray;
+    }
+
+    .beta-control {
+        margin: 0 1em;
+    }
+
+    .fancybutton {
+        border-color: #555;
+
+        &.beta-enable {
+            color: #485048;
+            background: #c3e67a;
+            &:hover {
+                background: #cce990;
+            }
+        }
+        &.beta-disable {
+            color: #325270;
+            background: #c0d5e9;
+            &:hover {
+                background: #ceddeb;
+            }
+        }
+        &.gold {
+            color: #5a523b;
+            background: #f5d074;
+            &:hover {
+                background: #f3d68f;
+            }
+        }
+        &:disabled, &:disabled:active {
+            color: #505050 !important;
+            background: #d5d5d5 !important;
+            border-color: #999;
+            box-shadow: none;
+        }
+    }
+}
+
+#beta-disable {
+    margin: 6em auto;
+}
