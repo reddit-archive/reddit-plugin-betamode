@@ -91,9 +91,10 @@ template_helpers.js_config = patched_js_config
 
 
 # add beta notice to all pages
-orig_content = Reddit.content
-def patched_content(self, *args, **kwargs):
-    ps = orig_content(self, *args, **kwargs)
+orig_content_stack = Reddit.content_stack
+@staticmethod
+def patched_content_stack(*args, **kwargs):
+    ps = orig_content_stack(*args, **kwargs)
     if c.beta:
         ps.push(BetaNotice(
             beta_name=g.beta_name,
@@ -101,7 +102,7 @@ def patched_content(self, *args, **kwargs):
             feedback_sr=g.beta_feedback_sr,
         ))
     return ps
-Reddit.content = patched_content
+Reddit.content_stack = patched_content_stack
 
 
 Reddit.extra_stylesheets.append('betamode.less')
