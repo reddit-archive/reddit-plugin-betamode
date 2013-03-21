@@ -6,6 +6,7 @@ setup(name='reddit_betamode',
     version='0.1',
     author='Max Goodman',
     author_email='max@reddit.com',
+    license='BSD',
     packages=find_packages(),
     install_requires=[
         'r2',
