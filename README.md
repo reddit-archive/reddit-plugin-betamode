@@ -3,7 +3,7 @@
 This plugin orchestrates an opt-in beta test on an app server running a new
 feature branch of reddit. The presence of a beta cookie is used to flag a
 frontend proxy like HAProxy to direct users to the beta server instead of the
-standard app server pool.
+regular app server pool.
 
 
 ## details
@@ -63,7 +63,7 @@ beta_allowed_users = kn0thing
 
 ## simple dev haproxy sample config
 
-This config assumes you are running a standard app server on port 8001 and a
+This config assumes you are running a regular app server on port 8001 and a
 beta plugin app server on port 8002.
 
 ```
@@ -83,16 +83,16 @@ frontend frontend 0.0.0.0:80
     acl beta hdr(Host) beta.reddit.local
 
     use_backend beta if beta
-    default_backend dynamic
+    default_backend regular
 
-backend dynamic
+backend regular
     mode http
     timeout connect 4000
     timeout server 30000
     timeout queue 60000
     balance roundrobin
 
-    server app01-8001 localhost:8001 maxconn 1 check
+    server regular-app localhost:8001 maxconn 1 check
 
 backend beta
     mode http
@@ -101,8 +101,8 @@ backend beta
     timeout queue 60000
     balance roundrobin
 
-    server app02-8002 localhost:8002 maxconn 1 check
+    server beta-app localhost:8002 maxconn 1 check
 
-    # if the beta app server is down for some reason fall back to the default.
-    server app01-8001 localhost:8001 maxconn 1 check backup
+    # if the beta app server is down for some reason fall back to regular.
+    server regular-app localhost:8001 maxconn 1 check backup
 ```
