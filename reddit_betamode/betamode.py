@@ -33,6 +33,7 @@ def beta_user_allowed(user):
         return True
 
     if g.beta_require_admin:
+        # admins are exempted above
         return False
 
     if g.beta_require_gold and not user.gold:
