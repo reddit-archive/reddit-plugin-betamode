@@ -96,7 +96,7 @@ def patched_pre(self, *args, **kwargs):
         if not user_allowed:
             # they have a beta cookie but are not permitted access.
             # redirect to /beta/disable/NAME, which will delete the cookie.
-            redirect_to_host(g.beta_domain, '/beta/disable/' + g.beta_name)
+            redirect_to_host(g.beta_domain, '/beta/disable')
 
         # extend cookie duration for a week
         c.cookies[cookie_name].expires = datetime.now() + timedelta(days=7)
@@ -161,18 +161,13 @@ class BetaModeController(RedditController):
         ).render()
 
     @prevent_framing_and_css()
-    @validate(name=VPrintable('name', 15))
-    def GET_disable(self, name):
-        if name != g.beta_name:
-            abort(404)
-
-        content = BetaDisable(
-            beta_title=g.beta_title,
-        )
+    def GET_disable(self, **kwargs):
+        # **kwargs included above to swallow pylons env arguments passed in
+        # due to argspec inspection of decorator **kwargs.
 
         return BoringPage(
             pagename=_('disabling beta'),
             content_id='beta-disable',
-            content=content,
+            content=BetaDisable(),
             show_sidebar=False,
         ).render()

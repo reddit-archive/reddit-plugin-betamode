@@ -32,7 +32,7 @@ class BetaMode(Plugin):
 
     def add_routes(self, mc):
         mc('/beta/about/:name', controller='betamode', action='beta')
-        mc('/beta/disable/:name', controller='betamode', action='disable')
+        mc('/beta/disable', controller='betamode', action='disable')
 
     def load_controllers(self):
         from reddit_betamode import betamode
