@@ -42,10 +42,17 @@ def beta_user_allowed(user):
     return True
 
 
-def beta_redirect(dest):
-    u = UrlParser(dest)
-    u.hostname = g.beta_domain
+def redirect_to_host(hostname, path=None):
+    """Redirect (302) to the specified path and host."""
+    if path is None:
+        path = request.path
+
+    u = UrlParser(path)
+    u.hostname = hostname
     abort(302, location=u.unparse())
+
+
+class ConfigurationError(Exception): pass
 
 
 # add beta cookie / gating to all requests
@@ -56,25 +63,41 @@ def patched_pre(self, *args, **kwargs):
     cookie_name = 'beta_' + g.beta_name
     c.beta = g.beta_name if cookie_name in c.cookies else None
 
-    if (not request.path.startswith('/beta/disable') and
-            not (c.user_is_loggedin and beta_user_allowed(c.user))):
-        if c.beta:
-            # they have a beta cookie, which needs to be removed.
-            # redirect to /beta/disable/..., which will delete the cookie.
-            beta_redirect('/beta/disable/' + g.beta_name)
-        elif g.beta_require_admin:
-            # someone without a beta cookie who isn't supposed to be here.
-            # if we're in admin-only mode, be opaque.
-            abort(404)
+    if not c.beta and request.host != g.beta_domain:
+        # a regular site url without a beta cookie got sent to a beta app.
+        # this is a configuration error that should not happen in practice, and
+        # can cause redirect loops if we're not careful.
+        raise ConfigurationError('request missing beta cookie')
+
+    user_allowed = c.user_is_loggedin and beta_user_allowed(c.user)
 
     if request.path.startswith('/beta'):
+        if not user_allowed:
+            if g.beta_require_admin and request.path.startswith('/beta/about'):
+                # if on admin lockdown, don't let non-admins view beta info.
+                redirect_to_host(g.domain)
+            else:
+                # the beta settings page will inform the user that they are not
+                # allowed to sign up.
+                pass
+
         if request.host != g.beta_domain:
-            # canonicalize the url
-            beta_redirect(request.path)
-    elif not c.beta:
-        # you need to enable the beta to access that!
-        beta_redirect('/beta/about/' + g.beta_name)
+            # canonicalize /beta urls to beta domain for clarity.
+            redirect_to_host(g.beta_domain)
     else:
+        if request.host == g.beta_domain:
+            # redirect non-/beta requests on the beta domain to g.domain.
+            #
+            # note: this redirect might result in a loop if the request on
+            # g.domain is also served by this beta app, which is one reason we
+            # strictly check and throw an error if this is the case above.
+            redirect_to_host(g.domain)
+
+        if not user_allowed:
+            # they have a beta cookie but are not permitted access.
+            # redirect to /beta/disable/NAME, which will delete the cookie.
+            redirect_to_host(g.beta_domain, '/beta/disable/' + g.beta_name)
+
         # extend cookie duration for a week
         c.cookies[cookie_name].expires = datetime.now() + timedelta(days=7)
         c.cookies[cookie_name].dirty = True
