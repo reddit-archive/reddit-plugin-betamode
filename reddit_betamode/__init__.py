@@ -35,4 +35,4 @@ class BetaMode(Plugin):
         mc('/beta/disable/:name', controller='betamode', action='disabled')
 
     def load_controllers(self):
-        import betamode
+        from reddit_betamode import betamode
