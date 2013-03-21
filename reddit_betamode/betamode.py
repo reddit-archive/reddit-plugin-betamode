@@ -10,11 +10,11 @@ from r2.controllers.reddit_base import (
     DELETE as DELETE_COOKIE,
 )
 from r2.lib.base import abort
-from r2.lib.wrapped import Templated
 from r2.lib.pages import Reddit, BoringPage
 from r2.lib import template_helpers
 from r2.lib.utils import UrlParser
 from r2.lib.validator import validate, VPrintable, VUser
+from pages import BetaNotice, BetaSettings, BetaDisable
 
 
 def beta_user_exempt():
@@ -106,18 +106,6 @@ Reddit.content_stack = patched_content_stack
 
 
 Reddit.extra_stylesheets.append('betamode.less')
-
-
-class BetaNotice(Templated):
-    pass
-
-
-class BetaSettings(Templated):
-    pass
-
-
-class BetaDisable(Templated):
-    pass
 
 
 @add_controller
