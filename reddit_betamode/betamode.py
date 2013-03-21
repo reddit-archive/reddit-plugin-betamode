@@ -17,7 +17,8 @@ from r2.lib.validator import validate, VPrintable, VUser
 from pages import BetaNotice, BetaSettings, BetaDisable
 
 
-def beta_user_exempt():
+def beta_user_exempt(user):
+    """Check if the current user is exempt from beta access restrictions."""
     if c.user.name in g.beta_allowed_users:
         return True
 
@@ -25,17 +26,16 @@ def beta_user_exempt():
         return True
 
 
-def beta_user_allowed():
-    if not c.user_is_loggedin:
-        return False
+def beta_user_allowed(user):
+    """Check if the current user is permitted to access the beta."""
 
-    if beta_user_exempt():
+    if beta_user_exempt(user):
         return True
 
     if g.beta_require_admin:
         return False
 
-    if g.beta_require_gold and not c.user.gold:
+    if g.beta_require_gold and not user.gold:
         return False
 
     return True
@@ -55,8 +55,8 @@ def patched_pre(self, *args, **kwargs):
     cookie_name = 'beta_' + g.beta_name
     c.beta = g.beta_name if cookie_name in c.cookies else None
 
-    if (not beta_user_allowed() and
-            not request.path.startswith('/beta/disable')):
+    if (not request.path.startswith('/beta/disable') and
+            not (c.user_is_loggedin and beta_user_allowed(c.user))):
         if c.beta:
             # they have a beta cookie, which needs to be removed.
             # redirect to /beta/disable/..., which will delete the cookie.
@@ -125,7 +125,7 @@ class BetaModeController(RedditController):
             description_md=g.beta_description_md[0],
             feedback_sr=g.beta_feedback_sr,
             enabled=c.beta,
-            require_gold=g.beta_require_gold and not beta_user_exempt(),
+            require_gold=g.beta_require_gold and not beta_user_exempt(c.user),
             has_gold=c.user_is_loggedin and c.user.gold,
         )
 
