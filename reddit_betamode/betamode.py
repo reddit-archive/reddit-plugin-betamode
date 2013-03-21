@@ -162,7 +162,7 @@ class BetaModeController(RedditController):
 
     @prevent_framing_and_css()
     @validate(name=VPrintable('name', 15))
-    def GET_disabled(self, name):
+    def GET_disable(self, name):
         if name != g.beta_name:
             abort(404)
 
