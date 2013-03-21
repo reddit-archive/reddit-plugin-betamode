@@ -72,15 +72,6 @@ def patched_pre(self, *args, **kwargs):
     user_allowed = c.user_is_loggedin and beta_user_allowed(c.user)
 
     if request.path.startswith('/beta'):
-        if not user_allowed:
-            if g.beta_require_admin and request.path.startswith('/beta/about'):
-                # if on admin lockdown, don't let non-admins view beta info.
-                redirect_to_host(g.domain)
-            else:
-                # the beta settings page will inform the user that they are not
-                # allowed to sign up.
-                pass
-
         if request.host != g.beta_domain:
             # canonicalize /beta urls to beta domain for clarity.
             redirect_to_host(g.beta_domain)
@@ -140,7 +131,9 @@ class BetaModeController(RedditController):
         name=VPrintable('name', 15),
     )
     def GET_beta(self, name):
-        if name != g.beta_name:
+        user_exempt = beta_user_exempt(c.user)
+
+        if name != g.beta_name or (g.beta_require_admin and not user_exempt):
             abort(404)
 
         content = BetaSettings(
@@ -149,7 +142,7 @@ class BetaModeController(RedditController):
             description_md=g.beta_description_md[0],
             feedback_sr=g.beta_feedback_sr,
             enabled=c.beta,
-            require_gold=g.beta_require_gold and not beta_user_exempt(c.user),
+            require_gold=g.beta_require_gold and not user_exempt,
             has_gold=c.user_is_loggedin and c.user.gold,
         )
 
