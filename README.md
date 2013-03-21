@@ -38,7 +38,7 @@ loop.
 # domain name of the beta app server (also add to reserved_subdomains)
 beta_domain = beta.reddit.local
 
-# short lowercase identifier for beta (used in urls and cookies)
+# short identifier ([a-z0-9]+) for beta, used in urls and cookie name
 beta_name = maelstrom
 
 # short human readable title for beta
