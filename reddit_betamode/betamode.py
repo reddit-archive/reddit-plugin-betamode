@@ -100,24 +100,13 @@ orig_js_config = template_helpers.js_config
 def patched_js_config(*args, **kwargs):
     config = orig_js_config(*args, **kwargs)
     if c.beta:
-        config['beta'] = c.beta
+        config['beta'] = {
+            'name': g.beta_name,
+            'title': g.beta_title,
+            'feedback_sr': g.beta_feedback_sr,
+        }
     return config
 template_helpers.js_config = patched_js_config
-
-
-# add beta notice to all pages
-orig_content_stack = Reddit.content_stack
-@staticmethod
-def patched_content_stack(*args, **kwargs):
-    ps = orig_content_stack(*args, **kwargs)
-    if c.beta:
-        ps.push(BetaNotice(
-            beta_name=g.beta_name,
-            beta_title=g.beta_title,
-            feedback_sr=g.beta_feedback_sr,
-        ))
-    return ps
-Reddit.content_stack = patched_content_stack
 
 
 Reddit.extra_stylesheets.append('betamode.less')

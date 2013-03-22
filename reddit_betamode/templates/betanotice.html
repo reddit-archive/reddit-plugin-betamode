@@ -1,9 +1,0 @@
-<%!
-  from r2.lib.template_helpers import add_sr
-%>
-
-<div class="beta-notice">
-    ${_('testing: %s') % thing.beta_title}
-    <a href="${add_sr(thing.feedback_sr, sr_path=False)}" target="_blank">${_('give feedback')}</a>
-    <a class="beta-disable" data-beta-name="${thing.beta_name}" href="javascript:void(0)">${_('disable')}</a>
-</div>
