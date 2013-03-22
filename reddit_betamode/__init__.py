@@ -36,3 +36,4 @@ class BetaMode(Plugin):
 
     def load_controllers(self):
         from reddit_betamode import betamode
+        betamode.hooks.register_all()

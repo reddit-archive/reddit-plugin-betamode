@@ -10,11 +10,15 @@ from r2.controllers.reddit_base import (
     DELETE as DELETE_COOKIE,
 )
 from r2.lib.base import abort
+from r2.lib.hooks import HookRegistrar
 from r2.lib.pages import Reddit, BoringPage
 from r2.lib import template_helpers
 from r2.lib.utils import UrlParser
 from r2.lib.validator import validate, VPrintable, VUser
 from pages import BetaNotice, BetaSettings, BetaDisable
+
+
+hooks = HookRegistrar()
 
 
 def beta_user_exempt(user):
@@ -56,10 +60,8 @@ class ConfigurationError(Exception): pass
 
 
 # add beta cookie / gating to all requests
-orig_pre = RedditController.pre
-def patched_pre(self, *args, **kwargs):
-    orig_pre(self, *args, **kwargs)
-
+@hooks.on('reddit.request.begin')
+def request_start():
     cookie_name = 'beta_' + g.beta_name
     c.beta = g.beta_name if cookie_name in c.cookies else None
 
@@ -92,21 +94,17 @@ def patched_pre(self, *args, **kwargs):
         # extend cookie duration for a week
         c.cookies[cookie_name].expires = datetime.now() + timedelta(days=7)
         c.cookies[cookie_name].dirty = True
-RedditController.pre = patched_pre
 
 
 # add beta property to js r.config
-orig_js_config = template_helpers.js_config
-def patched_js_config(*args, **kwargs):
-    config = orig_js_config(*args, **kwargs)
+@hooks.on('js_config')
+def beta_js_config(config):
     if c.beta:
         config['beta'] = {
             'name': g.beta_name,
             'title': g.beta_title,
             'feedback_sr': g.beta_feedback_sr,
         }
-    return config
-template_helpers.js_config = patched_js_config
 
 
 Reddit.extra_stylesheets.append('betamode.less')
