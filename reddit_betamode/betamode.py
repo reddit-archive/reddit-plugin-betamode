@@ -96,6 +96,22 @@ def request_start():
         c.cookies[cookie_name].dirty = True
 
 
+# clear beta cookie when logging out
+@hooks.on('reddit.request.end')
+def request_end():
+    session_cookie = c.cookies.get(g.login_cookie)
+    if session_cookie and session_cookie.expires == DELETE_COOKIE:
+        cookie_name = 'beta_' + c.beta
+        beta_cookie = c.cookies.get(cookie_name)
+        if beta_cookie:
+            response.set_cookie(
+                key=cookie_name,
+                value='',
+                domain=beta_cookie.domain,
+                expires=DELETE_COOKIE,
+            )
+
+
 # add beta property to js r.config
 @hooks.on('js_config')
 def beta_js_config(config):
