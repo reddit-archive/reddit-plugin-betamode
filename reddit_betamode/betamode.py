@@ -13,6 +13,7 @@ from r2.lib import authentication
 from r2.lib.base import abort
 from r2.lib.hooks import HookRegistrar
 from r2.lib.pages import Reddit, BoringPage
+from r2.lib.template_helpers import get_domain
 from r2.lib.utils import UrlParser
 from r2.lib.validator import validate, VPrintable, VUser
 from pages import BetaNotice, BetaSettings, BetaDisable
@@ -82,12 +83,13 @@ def request_start():
             redirect_to_host(g.beta_domain)
     else:
         if request.host == g.beta_domain:
-            # redirect non-/beta requests on the beta domain to g.domain.
+            # redirect non-/beta requests on the beta domain to default domain.
             #
-            # note: this redirect might result in a loop if the request on
-            # g.domain is also served by this beta app, which is one reason we
-            # strictly check and throw an error if this is the case above.
-            redirect_to_host(g.domain)
+            # note: this redirect might result in a loop if the request on the
+            # default domain is also served by this beta app, which is one
+            # reason we strictly check and throw an error if this is the case
+            # above.
+            redirect_to_host(get_domain(subreddit=False))
 
         if not user_allowed:
             # they have a beta cookie but are not permitted access.
