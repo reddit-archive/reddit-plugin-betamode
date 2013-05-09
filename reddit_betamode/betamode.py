@@ -9,10 +9,10 @@ from r2.controllers.reddit_base import (
     prevent_framing_and_css,
     DELETE as DELETE_COOKIE,
 )
+from r2.lib import authentication
 from r2.lib.base import abort
 from r2.lib.hooks import HookRegistrar
 from r2.lib.pages import Reddit, BoringPage
-from r2.lib import authentication, template_helpers
 from r2.lib.utils import UrlParser
 from r2.lib.validator import validate, VPrintable, VUser
 from pages import BetaNotice, BetaSettings, BetaDisable
