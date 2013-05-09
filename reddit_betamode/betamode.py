@@ -12,7 +12,7 @@ from r2.controllers.reddit_base import (
 from r2.lib.base import abort
 from r2.lib.hooks import HookRegistrar
 from r2.lib.pages import Reddit, BoringPage
-from r2.lib import template_helpers
+from r2.lib import authentication, template_helpers
 from r2.lib.utils import UrlParser
 from r2.lib.validator import validate, VPrintable, VUser
 from pages import BetaNotice, BetaSettings, BetaDisable
@@ -71,7 +71,10 @@ def request_start():
         # can cause redirect loops if we're not careful.
         raise ConfigurationError('request missing beta cookie')
 
-    user_allowed = c.user_is_loggedin and beta_user_allowed(c.user)
+    # run our own authentication check to sidestep c.user overrides such as the
+    # logged-out override for JSONP.
+    user = authentication.cookie()
+    user_allowed = user and beta_user_allowed(user)
 
     if request.path.startswith('/beta'):
         if request.host != g.beta_domain:
