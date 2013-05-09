@@ -23,10 +23,10 @@ hooks = HookRegistrar()
 
 def beta_user_exempt(user):
     """Check if the current user is exempt from beta access restrictions."""
-    if c.user.name in g.beta_allowed_users:
+    if user.name in g.beta_allowed_users:
         return True
 
-    if c.user.name in g.admins:
+    if user.name in g.admins:
         return True
 
 
