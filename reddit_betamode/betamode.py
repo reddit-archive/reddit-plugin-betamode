@@ -63,6 +63,10 @@ class ConfigurationError(Exception): pass
 # add beta cookie / gating to all requests
 @hooks.on('reddit.request.begin')
 def request_start():
+    # don't process ErrorController requests
+    if request.environ.get("pylons.error_call", False):
+        return
+
     cookie_name = 'beta_' + g.beta_name
     c.beta = g.beta_name if cookie_name in c.cookies else None
 
