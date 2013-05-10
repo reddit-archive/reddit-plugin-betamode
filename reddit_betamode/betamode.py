@@ -57,18 +57,40 @@ def redirect_to_host(hostname, path=None):
     abort(302, location=u.unparse())
 
 
+def touch_beta_cookie():
+    cookie_name = 'beta_' + c.beta
+    response.set_cookie(
+        key=cookie_name,
+        value='1',
+        domain=g.domain,
+        expires=datetime.now() + timedelta(days=7),
+    )
+
+
+def delete_beta_cookie():
+    cookie_name = 'beta_' + c.beta
+    beta_cookie = request.cookies.get(cookie_name)
+    if beta_cookie:
+        response.set_cookie(
+            key=cookie_name,
+            value='',
+            domain=g.domain,
+            expires=DELETE_COOKIE,
+        )
+
+
 class ConfigurationError(Exception): pass
 
 
 # add beta cookie / gating to all requests
-@hooks.on('reddit.request.begin')
+@hooks.on('reddit.request.minimal_begin')
 def request_start():
     # don't process ErrorController requests
     if request.environ.get("pylons.error_call", False):
         return
 
     cookie_name = 'beta_' + g.beta_name
-    c.beta = g.beta_name if cookie_name in c.cookies else None
+    c.beta = g.beta_name if cookie_name in request.cookies else None
 
     if not c.beta and request.host != g.beta_domain:
         # a regular site url without a beta cookie got sent to a beta app.
@@ -101,8 +123,7 @@ def request_start():
             redirect_to_host(g.beta_domain, '/beta/disable')
 
         # extend cookie duration for a week
-        c.cookies[cookie_name].expires = datetime.now() + timedelta(days=7)
-        c.cookies[cookie_name].dirty = True
+        touch_beta_cookie()
 
 
 # clear beta cookie when logging out
@@ -110,15 +131,7 @@ def request_start():
 def request_end():
     session_cookie = c.cookies.get(g.login_cookie)
     if session_cookie and session_cookie.expires == DELETE_COOKIE:
-        cookie_name = 'beta_' + c.beta
-        beta_cookie = c.cookies.get(cookie_name)
-        if beta_cookie:
-            response.set_cookie(
-                key=cookie_name,
-                value='',
-                domain=beta_cookie.domain,
-                expires=DELETE_COOKIE,
-            )
+        delete_beta_cookie()
 
 
 # add beta property to js r.config
