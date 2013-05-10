@@ -54,7 +54,9 @@ def redirect_to_host(hostname, path=None):
 
     u = UrlParser(path)
     u.hostname = hostname
-    abort(302, location=u.unparse())
+
+    # 307 redirect so request method is retained
+    abort(307, location=u.unparse())
 
 
 def touch_beta_cookie():
@@ -110,17 +112,26 @@ def request_start():
     else:
         if request.host == g.beta_domain:
             # redirect non-/beta requests on the beta domain to default domain.
-            #
-            # note: this redirect might result in a loop if the request on the
-            # default domain is also served by this beta app, which is one
-            # reason we strictly check and throw an error if this is the case
-            # above.
             redirect_to_host(get_domain(subreddit=False))
 
         if not user_allowed:
             # they have a beta cookie but are not permitted access.
-            # redirect to /beta/disable/NAME, which will delete the cookie.
-            redirect_to_host(g.beta_domain, '/beta/disable')
+            # this should hopefully only happen in corner cases (access
+            # changed or they somehow logged out without deleting the beta
+            # cookie)
+            if (request.method == 'GET' and
+                    response.content_type == 'text/html'):
+                # redirect to /beta/disable/NAME, which will delete the cookie.
+                redirect_to_host(g.beta_domain, '/beta/disable')
+            else:
+                # attempt to delete the cookie and redirect-retry.
+                #
+                # note: this redirect might result in a loop if the request on the
+                # default domain is also served by this beta app, which is one
+                # reason we strictly check and throw an error if this is the case
+                # above.
+                delete_beta_cookie()
+                redirect_to_host(get_domain(subreddit=False))
 
         # extend cookie duration for a week
         touch_beta_cookie()
