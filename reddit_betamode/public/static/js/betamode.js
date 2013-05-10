@@ -13,11 +13,13 @@ r.betamode = {
          $('body').append(this.noticeTemplate(r.config.beta))
       }
 
-      $('#beta-settings .beta-enable').on('click', function(){
+      $('#beta-settings .beta-enable').on('click', function() {
          r.betamode.enable($(this).data('beta-name'))
+         r.betamode.navigateHome()
       })
       $('#beta-settings .beta-disable, .beta-notice .beta-disable').on('click', function() {
          r.betamode.disable($(this).data('beta-name'))
+         r.betamode.navigateHome()
       })
 
       // if we're on the disable passthrough page, auto-disable.
@@ -35,7 +37,6 @@ r.betamode = {
          path:'/',
          expires: 7
       })
-      this.navigateHome()
    },
 
    disable: function(betaName) {
@@ -43,7 +44,6 @@ r.betamode = {
          domain: r.config.cur_domain,
          path:'/'
       })
-      this.navigateHome()
    },
 
    navigateHome: function() {
