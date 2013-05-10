@@ -8,7 +8,8 @@ r.betamode = {
    , null, {variable: 'beta'}),
 
    init: function() {
-      if (r.config.beta) {
+      // only display the beta notice on pages with the reddit header
+      if (r.config.beta && $('#header-img').length) {
          $('body').append(this.noticeTemplate(r.config.beta))
       }
 
