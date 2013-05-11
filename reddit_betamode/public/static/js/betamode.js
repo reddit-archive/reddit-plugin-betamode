@@ -3,7 +3,7 @@ r.betamode = {
          '<div class="beta-notice">'
        +     'testing: <%- beta.title %>'
        +     '<a href="<%- beta.feedback_sr %>" target="_blank">give feedback</a>'
-       +     '<a class="beta-disable" data-beta-name="<%- beta.name %>" href="javascript:void(0)">disable</a>'
+       +     '<a class="beta-disable" data-beta-name="<%- beta.name %>" href="/beta/disable">disable</a>'
        + '</div>'
    , null, {variable: 'beta'}),
 
@@ -17,7 +17,8 @@ r.betamode = {
          r.betamode.enable($(this).data('beta-name'))
          r.betamode.navigateHome()
       })
-      $('#beta-settings .beta-disable, .beta-notice .beta-disable').on('click', function() {
+      $('#beta-settings .beta-disable, .beta-notice .beta-disable').on('click', function(ev) {
+         ev.preventDefault()
          r.betamode.disable($(this).data('beta-name'))
          r.betamode.navigateHome()
       })
