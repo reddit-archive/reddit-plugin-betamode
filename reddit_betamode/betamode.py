@@ -6,7 +6,6 @@ from pylons.i18n import _
 from r2.controllers import add_controller
 from r2.controllers.reddit_base import (
     RedditController,
-    prevent_framing_and_css,
     DELETE as DELETE_COOKIE,
 )
 from r2.lib import authentication
@@ -161,7 +160,6 @@ Reddit.extra_stylesheets.append('betamode.less')
 
 @add_controller
 class BetaModeController(RedditController):
-    @prevent_framing_and_css()
     @validate(
         VUser(),
         name=VPrintable('name', 15),
@@ -189,7 +187,6 @@ class BetaModeController(RedditController):
             show_sidebar=False,
         ).render()
 
-    @prevent_framing_and_css()
     def GET_disable(self, **kwargs):
         # **kwargs included above to swallow pylons env arguments passed in
         # due to argspec inspection of decorator **kwargs.
