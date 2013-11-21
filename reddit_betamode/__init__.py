@@ -1,3 +1,4 @@
+from r2.config.routing import not_in_sr
 from r2.lib.plugin import Plugin
 from r2.lib.configparse import ConfigValue
 from r2.lib.js import Module
@@ -31,8 +32,10 @@ class BetaMode(Plugin):
     }
 
     def add_routes(self, mc):
-        mc('/beta/about/:name', controller='betamode', action='beta')
-        mc('/beta/disable', controller='betamode', action='disable')
+        mc('/beta/about/:name', controller='betamode', action='beta',
+           conditions={'function':not_in_sr})
+        mc('/beta/disable', controller='betamode', action='disable',
+           conditions={'function':not_in_sr})
 
     def load_controllers(self):
         from reddit_betamode import betamode
